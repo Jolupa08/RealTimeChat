@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat en Tiempo Real</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; }
+    #formulario { margin-top: 10px; display: flex; gap: 10px; }
+    input { flex: 1; padding: 10px; }
+    button { padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>💬 Chat en Tiempo Real</h1>
+  <div id="chat"></div>
+  <form id="formulario">
+    <input id="mensaje" autocomplete="off" placeholder="Escribe un mensaje..." />
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const chat = document.getElementById('chat');
+    const formulario = document.getElementById('formulario');
+    const input = document.getElementById('mensaje');
+    fetch('http://localhost:3000/getMessages')
+        .then(response => response.json())
+        .then(data => {
+          console.log('Respuesta del servidor:', data);
+
+          data.forEach(mensaje => {
+            const fecha = new Date(mensaje.date);
+
+            // Opción 1: Obtener la hora en formato HH:MM:SS (hora local)
+            const horaLocal = fecha.toTimeString().split(' ')[0];
+            
+            const item = document.createElement('div');
+            item.textContent = `${horaLocal}: ${mensaje.text}`;
+            chat.appendChild(item);
+            chat.scrollTop = chat.scrollHeight;
+          })  
+
+        })
+        .catch(error => {
+            console.error('Error al enviar mensaje:', error);
+        });
+
+
+    formulario.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (input.value) {
+        socket.emit('mensaje', input.value);
+        fetch('http://localhost:3000/postMessage', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: input.value
+        })
+        })
+        .catch(error => {
+          console.error('Error al enviar mensaje:', error);
+        });
+
+        input.value = '';
+      }
+    });
+
+    socket.on('mensaje', (msg) => {
+      const item = document.createElement('div');
+      const ahora = new Date();
+      const hora = ahora.toLocaleTimeString();
+      item.textContent = `${hora}: ${msg}`;
+      chat.appendChild(item);
+      chat.scrollTop = chat.scrollHeight;
+    });
+  </script>
+</body>
+</html>
