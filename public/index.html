@@ -25,7 +25,7 @@
     const chat = document.getElementById('chat');
     const formulario = document.getElementById('formulario');
     const input = document.getElementById('mensaje');
-    fetch('http://localhost:3000/getMessages')
+    fetch('http://https://realtimechat-bodn.onrender.com/getMessages')
         .then(response => response.json())
         .then(data => {
           console.log('Respuesta del servidor:', data);
@@ -52,7 +52,7 @@
       e.preventDefault();
       if (input.value) {
         socket.emit('mensaje', input.value);
-        fetch('http://localhost:3000/postMessage', {
+        fetch('http://https://realtimechat-bodn.onrender.com/postMessage', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
