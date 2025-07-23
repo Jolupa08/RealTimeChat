@@ -2,81 +2,143 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Chat en Tiempo Real</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💬 Chat en Tiempo Real</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; }
-    #formulario { margin-top: 10px; display: flex; gap: 10px; }
-    input { flex: 1; padding: 10px; }
-    button { padding: 10px; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background-color: #0078FF;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.3em;
+      font-weight: bold;
+    }
+
+    #chat {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mensaje {
+      max-width: 70%;
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-size: 0.95em;
+      line-height: 1.4;
+      background-color: #e1f5fe;
+      align-self: flex-start;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .mensaje.propio {
+      background-color: #0078FF;
+      color: white;
+      align-self: flex-end;
+    }
+
+    form {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      background-color: #fff;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 20px;
+      background-color: #0078FF;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0063cc;
+    }
   </style>
 </head>
 <body>
-  <h1>💬 Chat en Tiempo Real</h1>
+  <header>💬 Chat en Tiempo Real</header>
+
   <div id="chat"></div>
+
   <form id="formulario">
     <input id="mensaje" autocomplete="off" placeholder="Escribe un mensaje..." />
     <button type="submit">Enviar</button>
   </form>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://realtimechat-bodn.onrender.com/socket.io/socket.io.js"></script>
   <script>
     const socket = io("https://realtimechat-bodn.onrender.com");
     const chat = document.getElementById('chat');
     const formulario = document.getElementById('formulario');
     const input = document.getElementById('mensaje');
+
+    // Cargar mensajes antiguos
     fetch('https://realtimechat-bodn.onrender.com/getMessages')
-        .then(response => response.json())
-        .then(data => {
-          console.log('Respuesta del servidor:', data);
-
-          data.forEach(mensaje => {
-            const fecha = new Date(mensaje.date);
-
-            // Opción 1: Obtener la hora en formato HH:MM:SS (hora local)
-            const horaLocal = fecha.toTimeString().split(' ')[0];
-            
-            const item = document.createElement('div');
-            item.textContent = `${horaLocal}: ${mensaje.text}`;
-            chat.appendChild(item);
-            chat.scrollTop = chat.scrollHeight;
-          })  
-
-        })
-        .catch(error => {
-            console.error('Error al enviar mensaje:', error);
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(msg => {
+          agregarMensaje(msg.text, false, msg.date);
         });
+      });
 
-
-    formulario.addEventListener('submit', (e) => {
+    // Enviar nuevo mensaje
+    formulario.addEventListener('submit', e => {
       e.preventDefault();
-      if (input.value) {
-        socket.emit('mensaje', input.value);
+      const mensaje = input.value.trim();
+      if (mensaje) {
+        socket.emit('mensaje', mensaje);
         fetch('https://realtimechat-bodn.onrender.com/postMessage', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            message: input.value
-        })
-        })
-        .catch(error => {
-          console.error('Error al enviar mensaje:', error);
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: mensaje })
         });
-
+        agregarMensaje(mensaje, true);
         input.value = '';
       }
     });
 
-    socket.on('mensaje', (msg) => {
-      const item = document.createElement('div');
-      const ahora = new Date();
-      const hora = ahora.toLocaleTimeString();
-      item.textContent = `${hora}: ${msg}`;
-      chat.appendChild(item);
-      chat.scrollTop = chat.scrollHeight;
+    // Recibir mensaje en tiempo real
+    socket.on('mensaje', msg => {
+      agregarMensaje(msg, false);
     });
+
+    function agregarMensaje(texto, esPropio, fechaStr) {
+      const mensaje = document.createElement('div');
+      mensaje.classList.add('mensaje');
+      if (esPropio) mensaje.classList.add('propio');
+
+      const hora = fechaStr
+        ? new Date(fechaStr).toLocaleTimeString()
+        : new Date().toLocaleTimeString();
+
+      mensaje.textContent = `${hora} — ${texto}`;
+      chat.appendChild(mensaje);
+      chat.scrollTop = chat.scrollHeight;
+    }
   </script>
 </body>
 </html>
