@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>💬 Chat en Tiempo Real</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       margin: 0;
@@ -37,10 +37,8 @@
       padding: 10px 15px;
       border-radius: 20px;
       font-size: 0.95em;
-      line-height: 1.4;
       background-color: #e1f5fe;
       align-self: flex-start;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .mensaje.propio {
@@ -74,16 +72,61 @@
       cursor: pointer;
     }
 
-    button:hover {
-      background-color: #0063cc;
+    #username-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #username-box {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    #username-box input {
+      padding: 10px;
+      width: 80%;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    #username-box button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      background-color: #0078FF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #username-box button:hover {
+      background-color: #005ecf;
     }
   </style>
 </head>
 <body>
+  <div id="username-container" style="display: none;">
+    <div id="username-box">
+      <h3>¿Cómo te llamas?</h3>
+      <input type="text" id="usernameInput" placeholder="Ingresa tu nombre" />
+      <br />
+      <button onclick="guardarNombre()">Entrar al chat</button>
+    </div>
+  </div>
+
   <header>💬 Chat en Tiempo Real</header>
-
   <div id="chat"></div>
-
   <form id="formulario">
     <input id="mensaje" autocomplete="off" placeholder="Escribe un mensaje..." />
     <button type="submit">Enviar</button>
@@ -96,37 +139,54 @@
     const formulario = document.getElementById('formulario');
     const input = document.getElementById('mensaje');
 
+    let username = localStorage.getItem('username');
+
+    if (!username) {
+      document.getElementById('username-container').style.display = 'flex';
+    }
+
+    function guardarNombre() {
+      const inputName = document.getElementById('usernameInput').value.trim();
+      if (inputName) {
+        username = inputName;
+        localStorage.setItem('username', username);
+        document.getElementById('username-container').style.display = 'none';
+      } else {
+        alert('Por favor, escribe tu nombre.');
+      }
+    }
+
     // Cargar mensajes antiguos
     fetch('https://realtimechat-bodn.onrender.com/getMessages')
       .then(res => res.json())
       .then(data => {
         data.forEach(msg => {
-          agregarMensaje(msg.text, false, msg.date);
+          agregarMensaje(msg.text, msg.username === username, msg.username, msg.date);
         });
       });
 
-    // Enviar nuevo mensaje
+    // Enviar mensaje
     formulario.addEventListener('submit', e => {
       e.preventDefault();
       const mensaje = input.value.trim();
-      if (mensaje) {
-        socket.emit('mensaje', mensaje);
+      if (mensaje && username) {
+        socket.emit('mensaje', { text: mensaje, username });
         fetch('https://realtimechat-bodn.onrender.com/postMessage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: mensaje })
+          body: JSON.stringify({ message: mensaje, username })
         });
-        agregarMensaje(mensaje, true);
+        agregarMensaje(mensaje, true, username);
         input.value = '';
       }
     });
 
     // Recibir mensaje en tiempo real
-    socket.on('mensaje', msg => {
-      agregarMensaje(msg, false);
+    socket.on('mensaje', ({ text, username: autor }) => {
+      agregarMensaje(text, autor === username, autor);
     });
 
-    function agregarMensaje(texto, esPropio, fechaStr) {
+    function agregarMensaje(texto, esPropio, autor, fechaStr) {
       const mensaje = document.createElement('div');
       mensaje.classList.add('mensaje');
       if (esPropio) mensaje.classList.add('propio');
@@ -135,7 +195,7 @@
         ? new Date(fechaStr).toLocaleTimeString()
         : new Date().toLocaleTimeString();
 
-      mensaje.textContent = `${hora} — ${texto}`;
+      mensaje.textContent = `${hora} — ${autor || "Anónimo"}: ${texto}`;
       chat.appendChild(mensaje);
       chat.scrollTop = chat.scrollHeight;
     }
