@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const db = require('./db.js');
+const { use } = require('react');
 
 const app = express();
 const server = http.createServer(app);
@@ -36,6 +37,8 @@ app.delete('/messages', (req, res) => {
 
   const authToken = process.env.AUTH_TOKEN;
   const userToken = req.header["Authorization"];
+
+  console.log(authToken, userToken);
 
   if(userToken != authToken){
     return res.status(403).send('🚫 Acceso denegado');
