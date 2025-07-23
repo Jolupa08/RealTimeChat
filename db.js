@@ -13,8 +13,8 @@ module.exports = {
     const res = await pool.query('SELECT * FROM messages');
     return res.rows;
   },
-  postMessage: async (message) => {
-    await pool.query('INSERT INTO messages (text) VALUES ($1)', [message]);
+  postMessage: async (message, username) => {
+    await pool.query('INSERT INTO messages (text, username) VALUES ($1, $2)', [message, username]);
   },
   truncateMessages: async () => {
     await pool.query('TRUNCATE messages');

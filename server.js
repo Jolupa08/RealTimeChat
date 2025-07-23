@@ -15,7 +15,7 @@ app.disable('x-powered-by')
 app.post('/postMessage', (req, res) => {
  try{
 
-  db.postMessage(req.body.message)
+  db.postMessage(req.body.message, req.body.username)
 
  }catch(err){
 

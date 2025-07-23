@@ -174,7 +174,9 @@
         fetch('https://realtimechat-bodn.onrender.com/postMessage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: mensaje, username })
+          body: JSON.stringify({ 
+            message: mensaje, 
+            username: username })
         });
         agregarMensaje(mensaje, true, username);
         input.value = '';
