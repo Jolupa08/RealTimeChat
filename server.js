@@ -35,7 +35,7 @@ app.get('/getMessages', async (req, res) => {
 app.delete('/messages', (req, res) => {
 
   const authToken = process.env.AUTH_TOKEN;
-  const userToken = req.header["Authorization"];
+  const userToken = req.header('Authorization');
 
   console.log(authToken, userToken);
 
