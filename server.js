@@ -33,15 +33,20 @@ app.get('/getMessages', async (req, res) => {
 })
 
 app.delete('/messages', (req, res) => {
+
+  const authToken = process.env.AUTH_TOKEN;
+  const userToken = req.header["Authorization"];
+
+  if(userToken != authToken){
+    return res.status(403).send('🚫 Acceso denegado');
+  }
     
   db.truncateMessages();
   res.status(200).send("mensajes eliminados correctamente")
   
 })
 
-app.post('/login', (req, res)=>{
 
-})
 
 io.on('connection', (socket) => {
   console.log('🟢 Usuario conectado');
