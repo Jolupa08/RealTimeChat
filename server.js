@@ -10,7 +10,11 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 app.use(express.json());
-app.disable('x-powered-by')
+app.disable('x-powered-by');
+app.use((req, res) => {
+  res.header("Access-Control-Allow-Origin: *")
+});
+
 
 app.post('/postMessage', (req, res) => {
  try{

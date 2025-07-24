@@ -29,22 +29,41 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     .mensaje {
       max-width: 70%;
-      padding: 10px 15px;
-      border-radius: 20px;
-      font-size: 0.95em;
       background-color: #e1f5fe;
+      border-radius: 20px;
+      padding: 8px 12px;
       align-self: flex-start;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
 
     .mensaje.propio {
       background-color: #0078FF;
       color: white;
       align-self: flex-end;
+    }
+
+    .mensaje .info {
+      font-size: 0.75em;
+      font-weight: bold;
+      color: #333;
+      opacity: 0.7;
+    }
+
+    .mensaje.propio .info {
+      color: white;
+      opacity: 0.8;
+    }
+
+    .mensaje .texto {
+      font-size: 0.95em;
+      line-height: 1.4;
     }
 
     form {
@@ -176,7 +195,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             message: mensaje, 
-            username: username })
+            username: username 
+          })
         });
         input.value = '';
       }
@@ -193,10 +213,20 @@
       if (esPropio) mensaje.classList.add('propio');
 
       const hora = fechaStr
-        ? new Date(fechaStr).toLocaleTimeString()
-        : new Date().toLocaleTimeString();
+        ? new Date(fechaStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      mensaje.textContent = `${hora} — ${autor || "Anónimo"}: ${texto}`;
+      const info = document.createElement('div');
+      info.classList.add('info');
+      info.textContent = `${autor || "Anónimo"} · ${hora}`;
+
+      const textoDiv = document.createElement('div');
+      textoDiv.classList.add('texto');
+      textoDiv.textContent = texto;
+
+      mensaje.appendChild(info);
+      mensaje.appendChild(textoDiv);
+
       chat.appendChild(mensaje);
       chat.scrollTop = chat.scrollHeight;
     }
