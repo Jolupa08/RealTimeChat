@@ -189,6 +189,7 @@
       e.preventDefault();
       const mensaje = input.value.trim();
       if (mensaje && username) {
+        socket.emit('mensaje', { text: mensaje, username });
         fetch('https://realtimechat-bodn.onrender.com/postMessage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
