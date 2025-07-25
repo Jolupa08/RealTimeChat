@@ -22,7 +22,7 @@ app.post('/postMessage', (req, res) => {
   io.emit('mensaje', {text: req.body.message, username: req.body.username});
   db.postMessage(req.body.message, req.body.username)
 
-  res.status(201).json(req.body.message)
+  res.status(201)
 
  }catch(err){
 
