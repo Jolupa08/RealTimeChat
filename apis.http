@@ -7,3 +7,13 @@ Content-Type: application/json
 ###
 DELETE https://realtimechat-bodn.onrender.com/messages
 Authorization: QErDzLtDwRjWuWeisu7ZVQRW3OiZBZoTydY6cuqJHmaGVmGMmzR31Yx1LYBTg6DSpOOIwxs4BPyU6kml2Cw
+###
+POST http://localhost:5678/webhook-test/ai-agent
+Content-Type: application/json
+
+{
+
+    "user_id": "jolupa",
+    "chatInput": "puedes repetirmelo?"
+
+}

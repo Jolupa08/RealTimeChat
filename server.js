@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const db = require('./db.js');
+const cors = require('cors');
 
 
 const app = express();
@@ -11,13 +12,13 @@ const io = new Server(server);
 app.use(express.static('public'));
 app.use(express.json());
 app.disable('x-powered-by');
-app.use((req, res) => {
-  res.header("Access-Control-Allow-Origin: *")
-});
+app.use(cors());
 
 
 app.post('/postMessage', (req, res) => {
  try{
+
+  const role = req.body.username === "bot" ? "assistant" : "user";
 
   db.postMessage(req.body.message, req.body.username)
 

@@ -198,6 +198,14 @@
             username: username 
           })
         });
+        fetch('http://localhost:5678/webhook-test/ai-agent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            message: mensaje, 
+            session_id: username 
+          })
+        });
         input.value = '';
       }
     });
