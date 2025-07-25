@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const db = require('./db.js');
 const cors = require('cors');
+const { text } = require('body-parser');
 
 
 const app = express();
@@ -18,10 +19,7 @@ app.use(cors());
 app.post('/postMessage', (req, res) => {
  try{
 
-    io.emit('mensaje', {
-    message: req.body.message,
-    username: req.body.username
-  });
+  io.emit('mensaje', {text: req.body.message, username: req.body.username});
   db.postMessage(req.body.message, req.body.username)
 
   res.status(201).json(req.body.message)
