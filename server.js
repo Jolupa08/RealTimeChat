@@ -24,6 +24,8 @@ app.post('/postMessage', (req, res) => {
   });
   db.postMessage(req.body.message, req.body.username)
 
+  res.status(201).json(req.body.message)
+
  }catch(err){
 
   console.error(err);
