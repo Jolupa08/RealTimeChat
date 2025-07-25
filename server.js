@@ -18,8 +18,10 @@ app.use(cors());
 app.post('/postMessage', (req, res) => {
  try{
 
-  const role = req.body.username === "bot" ? "assistant" : "user";
-
+    io.emit('mensaje', {
+    message: req.body.message,
+    username: req.body.username
+  });
   db.postMessage(req.body.message, req.body.username)
 
  }catch(err){
