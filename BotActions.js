@@ -42,5 +42,7 @@ function handleHRTicket(){
 }
 
 function handleHumanRedirect(){
-    
+
 }
+
+module.exports = processBotMessage;

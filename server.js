@@ -24,7 +24,7 @@ app.post('/postMessage', (req, res) => {
   db.postMessage(req.body.message, req.body.username)
 
   if(req.body.username === "Assistant"){
-    processBotMessage(req.body.message);
+    bot.processBotMessage(req.body.message);
   }
 
   res.status(201).json(
