@@ -45,4 +45,4 @@ function handleHumanRedirect(){
 
 }
 
-module.exports = processBotMessage;
+module.exports = {processBotMessage};
