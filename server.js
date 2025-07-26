@@ -4,7 +4,7 @@ const { Server } = require('socket.io');
 const db = require('./db.js');
 const cors = require('cors');
 const { text } = require('body-parser');
-const bot = require("BotActions.js")
+const bot = require("./BotActions.js")
 
 
 const app = express();
